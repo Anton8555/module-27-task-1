@@ -141,7 +141,7 @@ int main() {
         cout << "Result:\n";
         find = false;  // let's say no elf named 'name' is found
         for (int i = 0; i < treeMax; i++) {
-            Branch *br = (trees[i]->find(name));
+            const Branch *br = (trees[i]->find(name));
             if (br != nullptr) {
                 find = true;  // elf found
                 int count = br->numberOfNeighbors();
@@ -157,12 +157,12 @@ int main() {
 
     //---------------------------------------------------------------------------------
     // destructor
-    for(int i=0; i<treeMax; i++) {
-        int count1 = trees[i]->getBranchCount();
-        for(int i1=0; i1<count1; i1++)
-            trees[i]->getBranchAt(i1)->Clear();
-        trees[i]->Clear();
-        delete trees[i];
+    for(auto &tr: trees) {
+        if( tr != nullptr ) {
+            tr->Clear();
+            delete tr;
+            tr = nullptr;
+        }
     }
 
     return 0;

@@ -8,28 +8,26 @@
  */
 void Branch::namingWithControl(string inName) {
     // convert string characters to lower case
-    for(int i=0; i<inName.length(); i++)
-        inName[i] = tolower(inName[i]);
+    for(char &ch: inName)
+        ch = (char)tolower((int)ch);
 
     // if the new value is 'none' then change the field.
     if( inName == "none" )
         name = inName;
 }
 
-
-
 // setters
-void Branch::setName(string inName) {
+void Branch::setName(const string &inName) {
     name = inName;
     namingWithControl(name);
 }
 
 // getters
-string Branch::getName() { return name; }
+string Branch::getName() const { return name; }
 // get the number of branches outgoing from the current branch.
-int Branch::getBranchCount() { return branch.size(); }
+int Branch::getBranchCount() const { return (int)branch.size(); }
 // get branch address by index
-Branch* Branch::getBranchAt(int index) {
+Branch* Branch::getBranchAt(int index) const {
     // index control
     if( index < 0 ) return nullptr;
     if( index >= branch.size() ) return nullptr;
@@ -42,7 +40,7 @@ Branch* Branch::getBranchAt(int index) {
 
 // constructors
 Branch::Branch() { Clear(); }
-Branch::Branch(string inName): name(inName) {
+Branch::Branch(string &inName): name(inName) {
     namingWithControl(name);
     parent = nullptr;
 }
@@ -53,8 +51,13 @@ Branch::Branch(string inName): name(inName) {
  * @brief Subroutine clearing a branch from data.
  */
 void Branch::Clear() {
-    for(int i=0; i<branch.size(); i++)
-        delete branch[i];
+    for(auto &br: branch) {
+        if( br != nullptr ) {
+            br->Clear();
+            delete br;
+            br = nullptr;
+        }
+    }
     branch.clear();
     parent = nullptr;
     name = "none";
@@ -75,8 +78,7 @@ void Branch::add(Branch* inBranch) {
  * @brief Recursive subroutine for getting the address of a big branch.
  * @return Returns a pointer to the larger branch, or 'nullptr' if it fails to evaluate.
  */
-Branch* Branch::getTopBranch()
-{
+const Branch* Branch::getTopBranch() const {
     // If this is a tree
     if (parent == nullptr)
         // then no result
@@ -96,17 +98,16 @@ Branch* Branch::getTopBranch()
  * @param inName - elf name.
  * @return If successful, returns a pointer to the big branch, otherwise 'nullptr'.
  */
-Branch* Branch::find(string inName)
-{
+const Branch* Branch::find(const string &inName) const {
     // if found then success
     if (inName == name)
         return getTopBranch();
 
     // otherwise iterate over child branches recursively
-    for(int i=0; i<branch.size(); i++) {
-        Branch *br = branch[i]->find(inName);
-        if (br != nullptr)
-            return br;
+    for(const auto &br: branch) {
+        const Branch *br1 = br->find(inName);
+        if (br1 != nullptr)
+            return br1;
     }
 
     // if the execution of the subprogram reached here, then it was not found on this branch.
@@ -118,8 +119,7 @@ Branch* Branch::find(string inName)
  * 'none'.
  * @return Returns the number of neighbors.
  */
-int Branch::numberOfNeighbors()
-{
+int Branch::numberOfNeighbors() const {
     // counter reset
     int count = 0;
 
@@ -128,8 +128,8 @@ int Branch::numberOfNeighbors()
         count++;
 
     // walk through child branches
-    for(int i=0; i<branch.size(); i++)
-        count += branch[i]->numberOfNeighbors();
+    for(const auto &br: branch)
+        count += br->numberOfNeighbors();
 
     // return result
     return count;

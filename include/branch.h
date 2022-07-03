@@ -15,23 +15,23 @@ class Branch {
     void namingWithControl(string inName);
 public:
     // setters
-    void setName(string inName);
+    void setName(const string &inName);
 
     // getters
-    string getName();
-    int getBranchCount();
-    Branch* getBranchAt(int index);
+    string getName() const;
+    int getBranchCount() const;
+    Branch* getBranchAt(int index) const;
 
     // methods
 
     // constructors
     Branch();
-    Branch(string inName);
+    Branch(string &inName);
     // Data management
     void Clear();
     void add(Branch* inBranch);
     // recursive functions
-    Branch* getTopBranch();
-    Branch* find(string inName);
-    int numberOfNeighbors();
+    const Branch* getTopBranch() const;
+    const Branch* find(const string &inName) const;
+    int numberOfNeighbors() const;
 };
